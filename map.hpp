@@ -75,7 +75,7 @@ private:
         NodeBase* x = y->left;
         y->left = x->right;
         if (x->right) x->right->parent = y;
-        x->parent = y->parent;
+        if (x) x->parent = y->parent;
         if (y == root()) {
             root() = x;
         } else if (y == y->parent->left) {
@@ -167,7 +167,7 @@ public:
         iterator& operator++() {
             if (node->right) {
                 node = node->right;
-                while (node->left) node = node->left;
+                while (node->height != 0 && node->left) node = node->left;
             } else {
                 NodeBase* p = node->parent;
                 while (p && node == p->right) {
@@ -186,11 +186,11 @@ public:
             return tmp;
         }
         iterator& operator--() {
-            if (node->parent && node->parent->parent == node && node->left == node) {
+            if (node->height == 0) {
                 node = node->right;
             } else if (node->left) {
                 node = node->left;
-                while (node->right) node = node->right;
+                while (node->height != 0 && node->right) node = node->right;
             } else {
                 NodeBase* p = node->parent;
                 while (p && node == p->left) {
@@ -234,7 +234,7 @@ public:
         const_iterator& operator++() {
             if (node->right) {
                 node = node->right;
-                while (node->left) node = node->left;
+                while (node->height != 0 && node->left) node = node->left;
             } else {
                 const NodeBase* p = node->parent;
                 while (p && node == p->right) {
@@ -253,11 +253,11 @@ public:
             return tmp;
         }
         const_iterator& operator--() {
-            if (node->parent && node->parent->parent == node && node->left == node) {
+            if (node->height == 0) {
                 node = node->right;
             } else if (node->left) {
                 node = node->left;
-                while (node->right) node = node->right;
+                while (node->height != 0 && node->right) node = node->right;
             } else {
                 const NodeBase* p = node->parent;
                 while (p && node == p->left) {
@@ -383,7 +383,7 @@ public:
         } else if (!y->right) {
             x = y->left;
             x_parent = y->parent;
-            x->parent = y->parent;
+            if (x) x->parent = y->parent;
             if (y == root()) root() = x;
             else if (y == y->parent->left) y->parent->left = x;
             else y->parent->right = x;
@@ -410,8 +410,8 @@ public:
             z->left->parent = y;
             y->height = z->height;
         }
-        if (leftmost() == header->parent) leftmost() = header;
-        if (rightmost() == header->parent) rightmost() = header;
+        if (root() == nullptr) { leftmost() = header; rightmost() = header; }
+        
         balance(x_parent);
         static_cast<Node*>(z)->get_val()->~value_type();
         delete static_cast<Node*>(z);
