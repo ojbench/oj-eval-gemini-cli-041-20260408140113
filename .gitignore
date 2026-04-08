@@ -1,0 +1,7 @@
+CMakeFiles/
+CMakeCache.txt
+code
+test.cpp
+test_cast.cpp
+a.out
+git_url.txt
